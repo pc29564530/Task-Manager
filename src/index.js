@@ -8,7 +8,24 @@ const bcrypt = require('bcryptjs')
 
 
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT||3000
+
+const multer = require('multer');
+const upload = multer({
+    dest: "images",
+    limits:{
+        fileSize:10000000
+    },
+    fileFilter(res,file, cb){
+        if(!file.originalname.match(/\.(pdf|doc|docx)$/)){
+            return cb(new Error('Please upload a PDF'))
+        }
+        cb(undefined,true)
+    }
+})
+app.post('/upload', upload.single('upload'), (req,res)=>{
+    res.send();
+})
 
 app.use(express.json());
 app.use(userRouter)
@@ -22,45 +39,5 @@ app.listen(port, ()=>{
 })
 
 
-const myFunction = async () =>{
-    const token = jwt.sign({_id:'abc123'}, 'thisismynewcourse')
-    console.log(token)
-
-    const data = jwt.verify(token, 'thisismynewcourse')
-    console.log(data)
-    // const password = 'pawan1234'
-    // const hashedPassword = await bcrypt.hash(password, 8 )
-    // console.log(password)
-    // console.log(hashedPassword)
-}
 
 
-myFunction()
-// const myFunciton = async () => {
-//     const token = jwt.sign({_id:'abc123'}, 't hisismynewcourse')
-//    console.log(token)
-
-//     const data = jwt.verify(token, 'thisismynewcourse')
-//     console.log(data)
-//     // const password = 'Bharat@12'
-//     // const hashedPassword = await bcrypt.hash(password, 9)
-
-//     // console.log(password)
-//     // console.log(hashedPassword)
-
-//     // const isMatch = await bcrypt.compare('Bharat@12', hashedPassword)
-//     // console.log(isMatch)
-// }
-
-// myFunciton()
-const Task = require('./models/task')
-const User = require('./models/user')
-// const main= async () =>{
-//     // const task = await Task.findById('61fcd3fa9c8d9048527aa813')
-//     // await task.populate('owner')
-//     // //console.log(task.owner)
-//     // const user = await User.findById('61f8e2d4992c82abfe9cf211')
-//     // await user.populate('tasks')
-//     // console.log(user.tasks)
-// }
-// main()  

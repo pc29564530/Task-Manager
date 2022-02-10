@@ -5,16 +5,34 @@ const auth = require('../middleware/auth')
 
 const routers =  express.Router()
 //task routes 
+// to get the task data 
 
+//GET /tasks?completed=false(quering a string and filtering )
+//GET /tasks?limit=1&skip=2 is used to upload the data and pagination of data 
+//options is used in pagination and sorting 
 routers.get('/tasks',auth,  async (req,res)=>{
+    const match = {}
+    const sort = {}
+    if(req.query.completed){
+        match.completed = req.query.completed === 'true'
+    }
+    if(req.query.sortBy){
+        const parts = req.query.sortBy.split(":")
+        sort[parts[0]]=parts[1] === 'desc' ? -1:1
+    }
     try{
-        const tasks = await Task.find({owner:req.user._id});  // to show the only authenticated tasks 
+       // const tasks = await Task.find({owner:req.user._id});  // to show the only authenticated tasks 
 
-        //await req.user.populate('tasks')
-        if(!tasks){
-            return res.status(400).send()
-        }
-        res.send(tasks)
+        await req.user.populate({
+            path:'tasks',  // have customized the object to get the query condition true 
+            match,
+            options:{
+                limit:parseInt(req.query.limit),
+                skip:parseInt(req.query.skip)
+            },
+            sort
+        })
+        res.send(req.user.tasks)
     }catch(e){
         res.status(500).send(e)
     }
@@ -31,6 +49,8 @@ routers.get('/tasks',auth,  async (req,res)=>{
     // })
 })
 
+
+//to get the only authenticated task data
 
 routers.get('/tasks/:id',auth,async(req,res)=>{
     const _id = req.params.id;
@@ -56,6 +76,8 @@ routers.get('/tasks/:id',auth,async(req,res)=>{
     // })
 })
 
+
+// to update the task 
 routers.patch('/tasks/:id',auth, async (req,res)=>{
     const updates = Object.keys(req.body)
     const allowedUpdates = ['description', 'completed']
@@ -80,6 +102,7 @@ routers.patch('/tasks/:id',auth, async (req,res)=>{
     }
 })
 
+// to delte the task 
 routers.delete('/tasks/:id',auth, async(req,res)=>{
     try{
         //const task = await Task.findByIdAndDelete(req.params.id)
@@ -93,6 +116,7 @@ routers.delete('/tasks/:id',auth, async(req,res)=>{
     }
 })
 
+// to create the task 
 routers.post('/tasks', auth, async (req,res)=> {
     //const task = new Task(req.body)
     const task = new Task({
