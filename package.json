@@ -16,13 +16,15 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
     "env-cmd": "^10.1.0",
-    "nodemon": "^2.0.15"
+    "jest": "^27.5.1",
+     "nodemon": "^2.0.15"
   }
 }
